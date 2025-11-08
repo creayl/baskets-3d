@@ -1,5 +1,33 @@
 # 3D Basket Weaving Simulator - Master Plan
 
+🤖 **OPTIMIZED FOR CLAUDE CODE / TERMINAL AI CODING**
+
+## TL;DR - Quick Reference
+
+**Tech Stack:** Three.js + Vite + lil-gui  
+**Deployment:** Cloudflare Pages (free)  
+**Timeline:** 3-5 days to MVP, 2-3 weeks polished
+
+**Core Files You'll Create:**
+- `src/main.js` - Scene setup + animation loop
+- `src/weaving/WeavingCurve.js` - Sinusoidal curve mathematics
+- `index.html` - Canvas container
+
+**Key Commands:**
+```bash
+npm create vite@latest basket-weaving-sim -- --template vanilla
+cd basket-weaving-sim && npm install three lil-gui
+npm run dev  # http://localhost:5173
+```
+
+**For Claude Code in Terminal:**
+```
+"Execute Phase [N] from masterplan.md"
+# Follow 10 phases sequentially with clear checkpoints
+```
+
+---
+
 ## Project Overview
 
 **Goal:** Build an interactive web-based 3D basket weaving simulator that visualizes traditional weaving patterns using three wooden threads following sinusoidal over/under patterns.
@@ -13,6 +41,25 @@
 - Cross-platform web deployment
 
 **Target Timeline:** 2-3 weeks to polished MVP
+
+---
+
+## Claude Code Usage Instructions
+
+Each phase has:
+1. **Terminal Commands** - Copy-paste ready
+2. **File Creation Tasks** - Explicit paths and content
+3. **Verification Steps** - How to confirm success
+4. **Checkpoint** - Terminal-visible success indicator
+
+**Workflow:**
+```bash
+# Start Claude Code in project directory
+claude-code
+
+# Give phase-by-phase instructions like:
+# "Execute Phase 1: Foundation Setup. Create all files and run verification."
+```
 
 ---
 
@@ -74,500 +121,817 @@ basket-weaving-sim/
 
 ## Development Phases
 
-### Phase 1: Foundation Setup (Day 1)
-**Goal:** Get basic 3D scene running with camera controls
+### Phase 1: Foundation Setup
+**Goal:** Basic 3D scene with rotating cube
 
-**Tasks:**
-1. Initialize Vite project
-2. Install Three.js and dependencies
-3. Create basic scene with camera and renderer
-4. Add OrbitControls for mouse interaction
-5. Test rendering with a simple test geometry (cube/sphere)
+**Terminal Commands:**
+```bash
+# Create project directory
+mkdir basket-weaving-sim
+cd basket-weaving-sim
 
-**Completion Criteria:**
-- Scene renders in browser
-- Mouse drag rotates view
-- Mouse wheel zooms
-- No console errors
+# Initialize npm and Vite
+npm create vite@latest . -- --template vanilla
+npm install
 
-**Key Files:**
-- `src/main.js`
-- `src/core/Scene.js`
-- `src/core/Camera.js`
-- `src/core/Renderer.js`
+# Install Three.js dependencies
+npm install three lil-gui
+
+# Install dev tools (optional but useful)
+npm install -D vite
+```
+
+**File Creation Tasks:**
+
+**Task 1.1: Create index.html**
+```bash
+# Location: ./index.html
+```
+Content: Minimal HTML with canvas container (see Code Examples section)
+
+**Task 1.2: Create src/main.js**
+```bash
+# Location: ./src/main.js
+```
+Content: Scene, camera, renderer setup + rotating cube test
+
+**Task 1.3: Update package.json scripts**
+```bash
+# Ensure these scripts exist:
+# "dev": "vite"
+# "build": "vite build"
+# "preview": "vite preview"
+```
+
+**Verification Steps:**
+```bash
+# Start dev server
+npm run dev
+
+# Should output:
+# VITE v5.x.x  ready in xxx ms
+# ➜  Local:   http://localhost:5173/
+# ➜  press h to show help
+```
+
+**Visual Checkpoint:**
+- Open http://localhost:5173/
+- **MUST SEE:** Rotating cube in center of screen
+- **MUST WORK:** Mouse drag rotates view
+- **MUST WORK:** Mouse wheel zooms in/out
+- **MUST NOT:** Console errors (check F12 DevTools)
+
+**Terminal Verification:**
+```bash
+# Check if files exist
+ls -la index.html src/main.js
+
+# Check dependencies installed
+npm list three lil-gui
+
+# Should show:
+# basket-weaving-sim@0.0.0
+# ├── lil-gui@0.19.x
+# └── three@0.161.x
+```
+
+**CHECKPOINT:** Cube rotates smoothly, no errors = Phase 1 Complete ✅
 
 ---
 
-### Phase 2: Custom Curve Implementation (Day 2)
-**Goal:** Implement sinusoidal curve mathematics for weaving patterns
+### Phase 2: Custom Weaving Curve
+**Goal:** Replace cube with single sinusoidal thread
 
-**Tasks:**
-1. Create `WeavingCurve` class extending `THREE.Curve`
-2. Implement sinusoidal `getPoint(t)` method
-3. Test curve with basic TubeGeometry visualization
-4. Add parameters: amplitude, frequency, length, phase offset
-5. Create first thread using TubeGeometry + WeavingCurve
+**File Creation Tasks:**
 
-**Mathematical Foundation:**
-```javascript
-// Sinusoidal curve for weaving pattern
-getPoint(t, optionalTarget = new THREE.Vector3()) {
-  // t ranges from 0 to 1 along the curve
-  // Map to cylindrical coordinates for basket shape
-  const angle = t * Math.PI * 2 * this.windings;  // Spirals around basket
-  const radius = this.basketRadius;
-  const height = t * this.basketHeight;
-  
-  // Sinusoidal over/under pattern
-  const radialOffset = this.amplitude * Math.sin(angle * this.frequency + this.phase);
-  
-  const x = (radius + radialOffset) * Math.cos(angle);
-  const y = height;
-  const z = (radius + radialOffset) * Math.sin(angle);
-  
-  return optionalTarget.set(x, y, z);
-}
+**Task 2.1: Create WeavingCurve.js**
+```bash
+# Location: ./src/weaving/WeavingCurve.js
+mkdir -p src/weaving
 ```
+Content: Custom THREE.Curve class with sinusoidal getPoint() method (see Code Examples)
 
-**Completion Criteria:**
-- Single thread renders as smooth curve
-- Thread follows sinusoidal pattern
-- Parameters adjustable in code
-- Curve is mathematically correct
-
-**Key Files:**
-- `src/weaving/WeavingCurve.js`
-- `src/weaving/Thread.js`
-
----
-
-### Phase 3: Three-Thread Weaving Pattern (Day 3)
-**Goal:** Implement three interwoven threads with offset patterns
-
-**Tasks:**
-1. Create three WeavingCurve instances with phase offsets (0°, 120°, 240°)
-2. Adjust frequency to create over/under weaving appearance
-3. Position threads to simulate vertical struts (löcher/gaps between struts)
-4. Implement vertical progression (y+1 after 360° rotation)
-5. Add basic brown material to threads
-
-**Weaving Pattern Logic:**
-```javascript
-// Three threads with 120° phase offset for even distribution
-const threads = [];
-const phaseOffsets = [0, 2*Math.PI/3, 4*Math.PI/3];
-
-for (let i = 0; i < 3; i++) {
-  const curve = new WeavingCurve({
-    amplitude: 0.5,
-    frequency: verticalStrutsCount,  // Creates over/under for each strut
-    phase: phaseOffsets[i],
-    basketRadius: 5,
-    basketHeight: 10,
-    windings: 5  // Number of times thread wraps around basket
-  });
-  
-  const geometry = new THREE.TubeGeometry(
-    curve,
-    512,  // Path segments (high for smooth curves)
-    threadThickness,
-    8,    // Radial segments
-    false // Not closed
-  );
-  
-  threads.push(new Thread(geometry, material));
-}
+**Task 2.2: Update main.js**
+```bash
+# Location: ./src/main.js
 ```
+Changes:
+- Remove cube geometry
+- Import WeavingCurve
+- Create TubeGeometry using WeavingCurve
+- Add brown material (color: 0x8B4513)
 
-**Completion Criteria:**
-- Three threads visible and interwoven
-- Visual over/under pattern recognizable
-- Threads positioned at correct offsets
-- No z-fighting or intersection artifacts
-
-**Key Files:**
-- `src/weaving/BasketWeaver.js`
-- `src/weaving/patterns/ThreeThreadPattern.js`
-
----
-
-### Phase 4: Materials & Lighting (Day 4)
-**Goal:** Add realistic wood appearance and proper lighting
-
-**Tasks:**
-1. Add basic lighting (HemisphereLight + DirectionalLight)
-2. Implement MeshStandardMaterial for threads
-3. Load wood texture (optional but "nice to have")
-4. Configure material properties (roughness, metalness)
-5. Test different wood colors/textures
-
-**Lighting Setup:**
+**Code Structure (for Claude Code):**
 ```javascript
-// Soft ambient light from sky
-const hemisphereLight = new THREE.HemisphereLight(
-  0xffffff,  // Sky color
-  0x444444,  // Ground color
-  0.6
-);
+// In main.js after scene setup:
+import { WeavingCurve } from './weaving/WeavingCurve.js';
 
-// Main directional light (sunlight)
-const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-directionalLight.position.set(5, 10, 7);
-```
+// Remove old cube code
 
-**Material Options:**
-```javascript
-// Simple colored material (no texture)
+// Create single thread
+const curve = new WeavingCurve({
+  amplitude: 0.5,
+  frequency: 12,
+  phase: 0,
+  basketRadius: 5,
+  basketHeight: 10,
+  windings: 5
+});
+
+const geometry = new THREE.TubeGeometry(curve, 512, 0.12, 8, false);
 const material = new THREE.MeshStandardMaterial({
-  color: 0x8B4513,  // Saddle brown
+  color: 0x8B4513,
   roughness: 0.8,
   metalness: 0.1
 });
-
-// With wood texture
-const textureLoader = new THREE.TextureLoader();
-const woodTexture = textureLoader.load('/textures/wood.jpg');
-const material = new THREE.MeshStandardMaterial({
-  map: woodTexture,
-  roughness: 0.9,
-  metalness: 0.0
-});
+const thread = new THREE.Mesh(geometry, material);
+scene.add(thread);
 ```
 
-**Completion Criteria:**
-- Scene is well-lit and visible
-- Materials look like wood (color or texture)
-- No overly dark or blown-out areas
-- Shadows not required (as per requirements)
+**Verification Steps:**
+```bash
+# Dev server should auto-reload
+# Check terminal for errors
+```
 
-**Key Files:**
-- `src/core/Lights.js`
-- `src/utils/MaterialManager.js`
+**Visual Checkpoint:**
+- **MUST SEE:** Single brown thread spiraling upward
+- **MUST SEE:** Thread has smooth sinusoidal wave pattern
+- **MUST WORK:** Mouse controls still functional
+- **MUST NOT:** Any jagged/blocky appearance
+- **MUST NOT:** Console errors
+
+**Terminal Test:**
+```bash
+# Check file was created
+ls -la src/weaving/WeavingCurve.js
+
+# Should output file details
+```
+
+**CHECKPOINT:** Smooth brown spiral thread visible = Phase 2 Complete ✅
 
 ---
 
-### Phase 5: Interactive Parameter Controls (Day 5)
-**Goal:** Real-time adjustment of weaving parameters
+### Phase 3: Three-Thread Weaving Pattern
+**Goal:** Add two more threads with 120° phase offsets
 
-**Tasks:**
-1. Integrate lil-gui
-2. Add controls for thread thickness
-3. Add controls for basket dimensions (radius, height)
-4. Add controls for weaving frequency
-5. Implement geometry regeneration on parameter change
-6. Optimize regeneration for smooth interaction
+**Task 3.1: Update main.js - Add two more threads**
+```bash
+# Location: ./src/main.js
+```
 
-**GUI Implementation:**
+Changes:
+- Convert single thread to array of 3 threads
+- Create loop with phase offsets: [0, 2π/3, 4π/3]
+- Each thread gets same parameters except phase
+
+**Code Structure:**
+```javascript
+// Replace single thread code with:
+const threads = [];
+const phaseOffsets = [0, Math.PI * 2 / 3, Math.PI * 4 / 3];
+
+phaseOffsets.forEach(phase => {
+  const curve = new WeavingCurve({
+    amplitude: 0.5,
+    frequency: 12,
+    phase: phase,  // Different for each thread
+    basketRadius: 5,
+    basketHeight: 10,
+    windings: 5
+  });
+  
+  const geometry = new THREE.TubeGeometry(curve, 512, 0.12, 8, false);
+  const material = new THREE.MeshStandardMaterial({
+    color: 0x8B4513,
+    roughness: 0.8,
+    metalness: 0.1
+  });
+  
+  const mesh = new THREE.Mesh(geometry, material);
+  scene.add(mesh);
+  threads.push(mesh);
+});
+```
+
+**Verification Steps:**
+```bash
+# Dev server auto-reloads
+# No terminal errors expected
+```
+
+**Visual Checkpoint:**
+- **MUST SEE:** Three distinct brown threads
+- **MUST SEE:** Threads evenly spaced (120° apart)
+- **MUST SEE:** Over/under weaving pattern visible
+- **MUST SEE:** Threads spiral together from bottom to top
+- **MUST NOT:** Threads overlapping incorrectly
+- **MUST NOT:** Z-fighting (flickering where threads meet)
+
+**Debug Tips:**
+- If threads overlap: increase `amplitude` to 0.6
+- If pattern unclear: adjust `frequency` between 8-16
+- If z-fighting: slight variation in phase (±0.01)
+
+**CHECKPOINT:** Three interwoven threads visible = Phase 3 Complete ✅
+
+---
+
+### Phase 4: Lighting Setup
+**Goal:** Add proper lighting to make threads visible
+
+**Task 4.1: Add lights to main.js**
+```bash
+# Location: ./src/main.js
+```
+
+Changes:
+- Add HemisphereLight (ambient from sky/ground)
+- Add DirectionalLight (main sunlight)
+- Position directional light above and to side
+
+**Code to Add (after scene creation, before threads):**
+```javascript
+// Lighting
+const ambientLight = new THREE.HemisphereLight(
+  0xffffff,  // Sky color
+  0x444444,  // Ground color
+  0.6        // Intensity
+);
+scene.add(ambientLight);
+
+const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+directionalLight.position.set(5, 10, 7);
+scene.add(directionalLight);
+```
+
+**Verification Steps:**
+```bash
+# Check browser - threads should look more 3D
+# No terminal errors expected
+```
+
+**Visual Checkpoint:**
+- **MUST SEE:** Threads have visible shading (not flat color)
+- **MUST SEE:** Top of threads brighter than bottom
+- **MUST SEE:** Clear depth perception
+- **MUST NOT:** Over-bright or too dark areas
+- **SHOULD LOOK:** Like wooden threads with realistic shading
+
+**Before/After Test:**
+- Comment out lights temporarily
+- Threads should look flat/dark without lights
+- Uncomment lights - threads should look 3D
+
+**CHECKPOINT:** Threads have realistic shading = Phase 4 Complete ✅
+
+---
+
+### Phase 5: Interactive GUI Controls
+**Goal:** Add sliders to adjust thread thickness and basket parameters in real-time
+
+**Task 5.1: Add lil-gui import and setup**
+```bash
+# Location: ./src/main.js
+```
+
+**Code to Add (at top):**
 ```javascript
 import GUI from 'lil-gui';
+```
 
+**Task 5.2: Create parameters object and GUI**
+```bash
+# Location: ./src/main.js
+# Add after imports, before scene setup
+```
+
+**Code Structure:**
+```javascript
+// Parameters object
 const params = {
-  threadThickness: 0.1,
+  threadThickness: 0.12,
   basketRadius: 5,
   basketHeight: 10,
   weavingFrequency: 12,
   windingCount: 5
 };
 
+// Use params in thread creation (modify existing code)
+const geometry = new THREE.TubeGeometry(
+  curve, 
+  512, 
+  params.threadThickness,  // Use param instead of hardcoded
+  8, 
+  false
+);
+```
+
+**Task 5.3: Add GUI after thread creation**
+```javascript
+// Create GUI
 const gui = new GUI();
 
 gui.add(params, 'threadThickness', 0.05, 0.3, 0.01)
   .name('Thread Thickness')
-  .onChange(value => {
-    basketWeaver.updateThreadThickness(value);
-  });
+  .onChange(() => recreateThreads());
 
 gui.add(params, 'basketRadius', 3, 10, 0.5)
   .name('Basket Radius')
-  .onChange(value => {
-    basketWeaver.regenerateBasket();
-  });
+  .onChange(() => recreateThreads());
 
-// Add more controls...
+gui.add(params, 'basketHeight', 5, 20, 0.5)
+  .name('Basket Height')
+  .onChange(() => recreateThreads());
+
+gui.add(params, 'weavingFrequency', 6, 24, 1)
+  .name('Weaving Frequency')
+  .onChange(() => recreateThreads());
+
+gui.add(params, 'windingCount', 1, 10, 1)
+  .name('Winding Count')
+  .onChange(() => recreateThreads());
 ```
 
-**Performance Optimization:**
+**Task 5.4: Create recreateThreads function**
 ```javascript
-// Dispose old geometry before creating new
-updateThreadThickness(newThickness) {
-  this.threads.forEach(thread => {
-    thread.geometry.dispose();  // Free GPU memory
-    thread.geometry = this.createThreadGeometry(newThickness);
+function recreateThreads() {
+  // Remove old threads
+  threads.forEach(thread => {
+    thread.geometry.dispose();
+    thread.material.dispose();
+    scene.remove(thread);
+  });
+  threads.length = 0;
+  
+  // Create new threads with current params
+  const phaseOffsets = [0, Math.PI * 2 / 3, Math.PI * 4 / 3];
+  
+  phaseOffsets.forEach(phase => {
+    const curve = new WeavingCurve({
+      amplitude: 0.5,
+      frequency: params.weavingFrequency,
+      phase: phase,
+      basketRadius: params.basketRadius,
+      basketHeight: params.basketHeight,
+      windings: params.windingCount
+    });
+    
+    const geometry = new THREE.TubeGeometry(
+      curve, 
+      512, 
+      params.threadThickness, 
+      8, 
+      false
+    );
+    
+    const material = new THREE.MeshStandardMaterial({
+      color: 0x8B4513,
+      roughness: 0.8,
+      metalness: 0.1
+    });
+    
+    const mesh = new THREE.Mesh(geometry, material);
+    scene.add(mesh);
+    threads.push(mesh);
   });
 }
 ```
 
-**Completion Criteria:**
-- GUI visible and functional
-- Parameters update in real-time
-- No memory leaks (geometry properly disposed)
-- UI feels responsive (no lag)
+**Verification Steps:**
+```bash
+# Dev server auto-reloads
+# Check for GUI panel in top-right corner
+```
 
-**Key Files:**
-- `src/controls/ParameterGUI.js`
-- `src/weaving/BasketWeaver.js` (update methods)
+**Visual Checkpoint:**
+- **MUST SEE:** GUI panel in top-right corner with 5 sliders
+- **MUST WORK:** Thread Thickness slider changes thread diameter immediately
+- **MUST WORK:** Basket Radius slider makes basket wider/narrower
+- **MUST WORK:** Basket Height slider makes basket taller/shorter
+- **MUST WORK:** Weaving Frequency changes over/under pattern density
+- **MUST WORK:** Winding Count changes how many times threads wrap
+- **MUST NOT:** Lag or freeze when adjusting sliders
+- **MUST NOT:** Memory leaks (test by moving sliders 20+ times)
+
+**Performance Test:**
+```bash
+# In browser console (F12):
+console.log(performance.memory.usedJSHeapSize);
+# Move sliders 20 times
+console.log(performance.memory.usedJSHeapSize);
+# Memory should not grow significantly
+```
+
+**CHECKPOINT:** All 5 sliders work smoothly = Phase 5 Complete ✅
 
 ---
 
-### Phase 6: Basket Base Geometry (Day 6)
-**Goal:** Add cylindrical basket base for threads to wrap around
+### Phase 6: Basket Cylinder (Optional Enhancement)
+**Goal:** Add semi-transparent basket body to visualize threads wrapping around
 
-**Tasks:**
-1. Create cylinder geometry for basket body
-2. Position threads relative to basket surface
-3. Add base platform (bottom of basket)
-4. Ensure threads align correctly with basket diameter
-5. Add semi-transparent basket option (see threads inside)
+**Task 6.1: Add basket cylinder geometry**
+```bash
+# Location: ./src/main.js
+# Add after threads, before animation loop
+```
 
-**Basket Geometry:**
+**Code to Add:**
 ```javascript
-// Main basket body (cylinder)
+// Basket body cylinder
 const basketGeometry = new THREE.CylinderGeometry(
-  params.basketRadius,      // Top radius
-  params.basketRadius,      // Bottom radius (same = cylinder)
-  params.basketHeight,      // Height
-  32,                       // Radial segments
-  1,                        // Height segments
-  true                      // Open-ended
+  params.basketRadius,
+  params.basketRadius,
+  params.basketHeight,
+  32,
+  1,
+  true  // Open-ended
 );
 
 const basketMaterial = new THREE.MeshStandardMaterial({
-  color: 0xDEB887,  // Burlywood
+  color: 0xDEB887,
   side: THREE.DoubleSide,
   transparent: true,
-  opacity: 0.3  // Semi-transparent to see threads
+  opacity: 0.2
 });
+
+const basketMesh = new THREE.Mesh(basketGeometry, basketMaterial);
+basketMesh.position.y = params.basketHeight / 2;
+scene.add(basketMesh);
 
 // Bottom cap
 const bottomGeometry = new THREE.CircleGeometry(params.basketRadius, 32);
 const bottomMesh = new THREE.Mesh(bottomGeometry, basketMaterial);
 bottomMesh.rotation.x = -Math.PI / 2;
 bottomMesh.position.y = 0;
+scene.add(bottomMesh);
+
+// Add toggle to GUI
+gui.add({ showBasket: true }, 'showBasket')
+  .name('Show Basket')
+  .onChange(value => {
+    basketMesh.visible = value;
+    bottomMesh.visible = value;
+  });
 ```
 
-**Completion Criteria:**
-- Basket cylinder visible
-- Threads properly positioned on basket surface
-- Bottom cap present
-- Option to toggle basket visibility
+**Visual Checkpoint:**
+- **MUST SEE:** Semi-transparent cylinder around threads
+- **MUST SEE:** Bottom cap closing basket
+- **MUST WORK:** Toggle in GUI to show/hide basket
+- **SHOULD LOOK:** Threads clearly visible through transparent basket
 
-**Key Files:**
-- `src/weaving/BasketWeaver.js`
-- `src/config/constants.js`
+**CHECKPOINT:** Basket cylinder visible and toggleable = Phase 6 Complete ✅
 
 ---
 
-### Phase 7: Polish & Optimization (Day 7-8)
-**Goal:** Refine visual quality and performance
+### Phase 7: Polish & Optimization
+**Goal:** Professional appearance and smooth performance
 
-**Tasks:**
-1. Add background color/gradient
-2. Improve camera starting position and limits
-3. Add stats.js for FPS monitoring
-4. Optimize geometry (reduce segments where possible)
-5. Add responsive canvas sizing
-6. Test on multiple devices/browsers
-7. Add loading state for textures
-
-**Performance Monitoring:**
-```javascript
-import Stats from 'three/examples/jsm/libs/stats.module.js';
-
-const stats = new Stats();
-document.body.appendChild(stats.dom);
-
-// In animation loop
-function animate() {
-  stats.begin();
-  
-  controls.update();
-  renderer.render(scene, camera);
-  
-  stats.end();
-  requestAnimationFrame(animate);
-}
+**Task 7.1: Add background and camera setup**
+```bash
+# Location: ./src/main.js
+# Update scene background and camera position
 ```
 
-**Responsive Canvas:**
+**Code Changes:**
 ```javascript
+// Better background
+scene.background = new THREE.Color(0xf5f5f5);
+
+// Better camera starting position
+camera.position.set(15, 12, 15);
+camera.lookAt(0, params.basketHeight / 2, 0);
+
+// Update controls target
+controls.target.set(0, params.basketHeight / 2, 0);
+```
+
+**Task 7.2: Add responsive canvas handling**
+```javascript
+// Window resize handler
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 });
 ```
 
-**Completion Criteria:**
-- Maintains 60 FPS on target hardware
-- Canvas resizes properly
-- Professional appearance
-- No console errors or warnings
-
-**Key Files:**
-- `src/main.js`
-- `src/core/Renderer.js`
-
----
-
-### Phase 8: Extensibility Architecture (Day 9-10)
-**Goal:** Prepare for additional weaving techniques
-
-**Tasks:**
-1. Create `PatternBase` abstract class
-2. Refactor `ThreeThreadPattern` to extend base
-3. Add pattern selector in GUI
-4. Document pattern interface for future techniques
-5. Create example second pattern (e.g., "FourThreadCross")
-
-**Pattern Architecture:**
-```javascript
-// Base class for all weaving patterns
-class PatternBase {
-  constructor(params) {
-    this.params = params;
-  }
-  
-  // Must be implemented by subclasses
-  generateThreads() {
-    throw new Error('generateThreads() must be implemented');
-  }
-  
-  // Optional: pattern-specific parameters
-  getParameters() {
-    return {};
-  }
-  
-  // Optional: pattern description
-  getDescription() {
-    return 'Base weaving pattern';
-  }
-}
-
-// Three-thread implementation
-class ThreeThreadPattern extends PatternBase {
-  generateThreads() {
-    const threads = [];
-    const phaseOffsets = [0, 2*Math.PI/3, 4*Math.PI/3];
-    
-    for (let i = 0; i < 3; i++) {
-      // Create curve with offset
-      const curve = new WeavingCurve({
-        ...this.params,
-        phase: phaseOffsets[i]
-      });
-      
-      threads.push(this.createThread(curve));
-    }
-    
-    return threads;
-  }
-  
-  getDescription() {
-    return 'Traditional three-thread over/under weave';
-  }
-}
-```
-
-**GUI Pattern Selector:**
-```javascript
-const patterns = {
-  'Three Thread': ThreeThreadPattern,
-  'Four Thread Cross': FourThreadCrossPattern  // Future
-};
-
-gui.add(params, 'pattern', Object.keys(patterns))
-  .name('Weaving Pattern')
-  .onChange(patternName => {
-    const PatternClass = patterns[patternName];
-    basketWeaver.setPattern(new PatternClass(params));
-  });
-```
-
-**Completion Criteria:**
-- Pattern system is extensible
-- Easy to add new patterns
-- Pattern switching works smoothly
-- Documentation clear for future development
-
-**Key Files:**
-- `src/weaving/patterns/PatternBase.js`
-- `src/weaving/patterns/ThreeThreadPattern.js`
-- `src/weaving/BasketWeaver.js` (pattern management)
-
----
-
-### Phase 9: Testing & Debugging (Day 11)
-**Goal:** Ensure stability and correct behavior
-
-**Tasks:**
-1. Test all parameter combinations
-2. Verify geometry disposal (no memory leaks)
-3. Test extreme values (very thin/thick threads, small/large baskets)
-4. Cross-browser testing (Chrome, Firefox, Safari)
-5. Mobile responsiveness testing
-6. Fix any discovered bugs
-
-**Test Checklist:**
-- [ ] Thread thickness: 0.05 to 0.3 (no visual artifacts)
-- [ ] Basket radius: 3 to 10 (threads scale correctly)
-- [ ] Basket height: 5 to 20 (proportions maintained)
-- [ ] Weaving frequency: 6 to 24 (over/under pattern clear)
-- [ ] Mouse controls smooth on all axes
-- [ ] No console errors during any interaction
-- [ ] FPS remains above 30 on mobile
-- [ ] Canvas resizes properly on window resize
-- [ ] GUI remains accessible on small screens
-
-**Completion Criteria:**
-- All tests pass
-- No known bugs
-- Performance acceptable on target devices
-
----
-
-### Phase 10: Deployment (Day 12)
-**Goal:** Deploy to production hosting
-
-**Deployment Steps:**
-
-1. **Build for production:**
+**Task 7.3: Add stats.js for FPS monitoring (dev only)**
 ```bash
+npm install --save-dev stats.js
+```
+
+```javascript
+import Stats from 'stats.js';
+
+const stats = new Stats();
+stats.showPanel(0);  // 0: fps, 1: ms, 2: mb
+document.body.appendChild(stats.dom);
+
+// In animation loop:
+function animate() {
+  stats.begin();
+  // ... render code ...
+  stats.end();
+}
+```
+
+**Terminal Test:**
+```bash
+# Build and check size
 npm run build
+ls -lh dist/assets/*.js
+
+# Should be under 500KB gzipped
 ```
 
-2. **Test production build locally:**
+**Visual Checkpoint:**
+- **MUST SEE:** FPS counter showing 60fps
+- **MUST WORK:** Window resize maintains aspect ratio
+- **MUST LOOK:** Professional, clean appearance
+- **SHOULD RUN:** Smooth 60fps on desktop, 30+ on mobile
+
+**CHECKPOINT:** 60fps and responsive = Phase 7 Complete ✅
+
+---
+
+### Phase 8: Code Organization (Optional but Recommended)
+**Goal:** Clean up main.js into separate modules
+
+**Task 8.1: Create organized file structure**
 ```bash
+mkdir -p src/core src/weaving src/controls
+```
+
+**Task 8.2: Extract modules**
+- `src/core/Scene.js` - Scene setup
+- `src/core/Renderer.js` - Renderer config
+- `src/core/Lights.js` - Lighting setup
+- `src/controls/GUI.js` - Parameter controls
+- `src/weaving/ThreadManager.js` - Thread creation/disposal
+
+**Task 8.3: Refactor main.js to use modules**
+```javascript
+import { createScene } from './core/Scene.js';
+import { createRenderer } from './core/Renderer.js';
+import { setupLights } from './core/Lights.js';
+import { createGUI } from './controls/GUI.js';
+import { ThreadManager } from './weaving/ThreadManager.js';
+
+const scene = createScene();
+const renderer = createRenderer();
+setupLights(scene);
+const threadManager = new ThreadManager(scene);
+const gui = createGUI(threadManager);
+```
+
+**Verification:**
+```bash
+# Check file structure
+tree src/
+
+# Should show organized folders
+# Dev server should work identically
+npm run dev
+```
+
+**CHECKPOINT:** Code organized, still works = Phase 8 Complete ✅
+
+---
+
+### Phase 9: Testing & Bug Fixes
+**Goal:** Verify all functionality works correctly
+
+**Terminal Test Suite:**
+```bash
+# Test build
+npm run build
 npm run preview
+
+# Test in different browsers (manual)
+# - Chrome: http://localhost:4173
+# - Firefox: http://localhost:4173
+# - Safari: http://localhost:4173
 ```
 
-3. **Create GitHub repository:**
+**Visual Test Checklist:**
+```
+□ Thread thickness: 0.05 to 0.3 - no artifacts
+□ Basket radius: 3 to 10 - scales correctly
+□ Basket height: 5 to 20 - proportions maintained
+□ Weaving frequency: 6 to 24 - pattern clear
+□ Winding count: 1 to 10 - spirals correctly
+□ Mouse drag rotation - smooth
+□ Mouse wheel zoom - smooth
+□ Window resize - maintains aspect
+□ No console errors
+□ FPS > 30 on mobile
+```
+
+**Memory Leak Test:**
+```javascript
+// In browser console:
+for(let i = 0; i < 50; i++) {
+  // Move each slider through full range
+  // Check stats.js memory panel
+  // Should stabilize, not continuously grow
+}
+```
+
+**CHECKPOINT:** All tests pass = Phase 9 Complete ✅
+
+---
+
+### Phase 10: Deployment
+**Goal:** Deploy to Cloudflare Pages
+
+**Task 10.1: Prepare repository**
 ```bash
+# Initialize git if not already
 git init
+
+# Create .gitignore
+cat > .gitignore << 'EOF'
+node_modules/
+dist/
+.DS_Store
+*.log
+EOF
+
+# Initial commit
 git add .
 git commit -m "Initial commit: 3D basket weaving simulator"
-git remote add origin <your-repo-url>
+```
+
+**Task 10.2: Create GitHub repository**
+```bash
+# Create repo on GitHub, then:
+git remote add origin https://github.com/YOUR_USERNAME/basket-weaving-sim.git
+git branch -M main
 git push -u origin main
 ```
 
-4. **Deploy to Cloudflare Pages:**
-   - Go to Cloudflare Pages dashboard
-   - Click "Create a project"
-   - Connect GitHub repository
-   - Configure build settings:
-     - Build command: `npm run build`
-     - Build output directory: `dist`
-     - Node version: 18 or higher
-   - Click "Save and Deploy"
+**Task 10.3: Deploy to Cloudflare Pages**
+1. Go to https://pages.cloudflare.com/
+2. Click "Create a project"
+3. Connect GitHub account
+4. Select repository: `basket-weaving-sim`
+5. Build settings:
+   - **Build command:** `npm run build`
+   - **Build output directory:** `dist`
+   - **Root directory:** (leave empty)
+   - **Environment variables:** None needed
+6. Click "Save and Deploy"
 
-5. **Configure custom domain (optional):**
-   - Add custom domain in Cloudflare Pages settings
-   - Update DNS records as instructed
+**Verification:**
+```bash
+# After deployment (2-3 minutes):
+# Visit provided URL: https://basket-weaving-sim.pages.dev
+```
 
-**Completion Criteria:**
-- Site live and accessible
-- All features working in production
-- Custom domain configured (if desired)
-- Repository has proper README
+**Visual Checkpoint:**
+- **MUST WORK:** Site loads at provided URL
+- **MUST WORK:** All features functional
+- **MUST WORK:** Mobile responsive
+- **MUST NOT:** Console errors in production
+
+**CHECKPOINT:** Site live and working = Phase 10 Complete ✅
+
+---
+
+## Quick Start Commands (Copy-Paste Ready)
+
+**Complete Setup from Scratch:**
+```bash
+# Create and setup project
+mkdir basket-weaving-sim && cd basket-weaving-sim
+npm create vite@latest . -- --template vanilla
+npm install
+npm install three lil-gui
+npm install -D stats.js
+
+# Start development
+npm run dev
+
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
+
+# Deploy (after GitHub setup)
+git init
+git add .
+git commit -m "Initial commit"
+git remote add origin YOUR_REPO_URL
+git push -u origin main
+# Then connect to Cloudflare Pages
+```
+
+---
+
+## Claude Code Specific Instructions
+
+### How to Use This Plan with Claude Code
+
+**Phase-by-Phase Execution:**
+```bash
+# Start Claude Code in your project directory
+claude-code
+
+# Example prompts for each phase:
+```
+
+**Phase 1:**
+```
+Execute Phase 1 from masterplan.md: Create Vite project, install Three.js and lil-gui, 
+create basic scene with rotating cube and OrbitControls. Verify it works in browser.
+```
+
+**Phase 2:**
+```
+Execute Phase 2 from masterplan.md: Create WeavingCurve.js class with sinusoidal 
+mathematics, replace cube with single brown thread using TubeGeometry. 
+```
+
+**Phase 3:**
+```
+Execute Phase 3 from masterplan.md: Modify main.js to create three threads with 
+120° phase offsets. Verify interwoven pattern is visible.
+```
+
+**Phase 4:**
+```
+Execute Phase 4 from masterplan.md: Add HemisphereLight and DirectionalLight 
+to main.js. Threads should have realistic 3D shading.
+```
+
+**Phase 5:**
+```
+Execute Phase 5 from masterplan.md: Integrate lil-gui with 5 parameter sliders. 
+Implement recreateThreads() function with proper geometry disposal.
+```
+
+**Continue similarly for remaining phases...**
+
+### Verification Commands for Claude Code
+
+After each phase, Claude Code should run:
+
+```bash
+# Check files exist
+ls -la src/
+
+# Check dependencies
+npm list three lil-gui
+
+# Start dev server if not running
+npm run dev
+
+# Check for errors in terminal
+# (look for "VITE v5.x.x  ready" message)
+```
+
+### Debugging with Claude Code
+
+If something doesn't work:
+
+```bash
+# Check browser console
+# Tell Claude Code: "Check browser console at http://localhost:5173, 
+# there's an error: [paste error]"
+
+# Check build
+npm run build
+# Tell Claude Code: "Build failed with: [paste error]"
+
+# Memory leak check
+# Tell Claude Code: "After moving sliders 20 times, memory usage increased 
+# from X to Y. Check for geometry disposal issues."
+```
+
+### Common Claude Code Prompts
+
+**Fix a visual issue:**
+```
+The threads look jagged/blocky. Increase tubularSegments in TubeGeometry 
+to 512 or higher.
+```
+
+**Performance issue:**
+```
+FPS dropped to 20. Check stats.js output. Reduce tubularSegments to 256 
+and radialSegments to 6.
+```
+
+**Add feature:**
+```
+Add a color picker to the GUI that changes thread color. Use params.threadColor 
+and update material.color in recreateThreads().
+```
 
 ---
 
@@ -824,55 +1188,144 @@ export class WeavingCurve extends THREE.Curve {
 
 ---
 
-## Testing Checklist
+## Testing Checklist (Terminal Edition)
 
-### Visual Tests
-- [ ] Threads render as smooth curves (no jagged edges)
-- [ ] Three threads clearly visible and distinct
-- [ ] Over/under weaving pattern recognizable
-- [ ] Threads positioned correctly around basket perimeter
-- [ ] Material looks wood-like
-- [ ] Scene is well-lit
-- [ ] Background color appropriate
+### Quick Visual Tests
+```bash
+# Start dev server
+npm run dev
 
-### Interaction Tests
-- [ ] Mouse drag rotates view smoothly
-- [ ] Mouse wheel zooms in/out
-- [ ] Right-click drag pans view
-- [ ] Camera doesn't flip unexpectedly
-- [ ] OrbitControls feel natural
+# Open http://localhost:5173 and verify:
+```
 
-### Parameter Tests
-- [ ] Thread thickness slider updates immediately
-- [ ] Basket radius slider maintains correct proportions
-- [ ] Basket height slider updates correctly
-- [ ] Weaving frequency creates clear over/under changes
-- [ ] Winding count affects spiral density
-- [ ] Extreme values don't crash app
+**Visual Checks:**
+- [ ] **Threads render smoothly** (no jagged edges)
+- [ ] **Three distinct threads** visible
+- [ ] **Over/under pattern** recognizable
+- [ ] **Wood-like material** appearance
+- [ ] **Scene well-lit** (not too dark/bright)
+- [ ] **FPS counter shows 60fps** (if stats.js enabled)
 
-### Performance Tests
-- [ ] Maintains 60 FPS on desktop
-- [ ] Maintains >30 FPS on mobile
-- [ ] No memory leaks (test by adjusting parameters 50+ times)
-- [ ] Stats.js shows stable frame times
-- [ ] No dropped frames during interaction
+### Terminal Tests
+```bash
+# Test build process
+npm run build
+# Should complete without errors
 
-### Compatibility Tests
-- [ ] Chrome desktop (latest)
-- [ ] Firefox desktop (latest)
-- [ ] Safari desktop (latest)
-- [ ] Edge desktop (latest)
-- [ ] Chrome mobile (Android)
-- [ ] Safari mobile (iOS)
-- [ ] Tablet landscape/portrait modes
+# Check build size
+ls -lh dist/assets/*.js
+# Should be under 500KB
 
-### Deployment Tests
-- [ ] Production build completes without errors
-- [ ] Preview build works locally
-- [ ] Deployed site loads correctly
-- [ ] All assets load (no 404s)
-- [ ] HTTPS works correctly
-- [ ] Custom domain resolves (if configured)
+# Test preview
+npm run preview
+# Should start on http://localhost:4173
+
+# Check dependencies
+npm list
+# Should show three, lil-gui, no errors
+```
+
+### Browser Console Tests
+```javascript
+// Open F12 DevTools Console:
+
+// 1. Check for errors (should be none)
+console.log("Any errors above?")
+
+// 2. Memory leak test
+console.log(performance.memory.usedJSHeapSize)
+// Move ALL sliders back and forth 10 times
+console.log(performance.memory.usedJSHeapSize)
+// Difference should be < 10MB
+
+// 3. Frame time test
+let frameTimes = [];
+for(let i = 0; i < 60; i++) {
+  let start = performance.now();
+  setTimeout(() => frameTimes.push(performance.now() - start), 16 * i);
+}
+setTimeout(() => console.log("Avg frame time:", 
+  frameTimes.reduce((a,b)=>a+b)/frameTimes.length), 1000);
+// Should be ~16ms (60fps)
+```
+
+### Parameter Range Tests
+**Test each parameter at extremes:**
+
+1. **Thread Thickness**
+   - Min (0.05): Should be visible, very thin
+   - Max (0.3): Should be visible, very thick
+   - No geometry errors
+
+2. **Basket Radius**
+   - Min (3): Small basket, threads tight
+   - Max (10): Large basket, threads spread
+   - Proportions maintained
+
+3. **Basket Height**
+   - Min (5): Short basket
+   - Max (20): Tall basket  
+   - Threads spiral correctly
+
+4. **Weaving Frequency**
+   - Min (6): Few over/under cycles
+   - Max (24): Many over/under cycles
+   - Pattern always clear
+
+5. **Winding Count**
+   - Min (1): One wrap around basket
+   - Max (10): Ten wraps around basket
+   - No thread overlap errors
+
+### Cross-Browser Tests
+```bash
+# Test in multiple browsers (manual):
+# Chrome: ✓ Works
+# Firefox: ✓ Works
+# Safari: ✓ Works
+# Edge: ✓ Works
+# Mobile Chrome: ✓ Works
+# Mobile Safari: ✓ Works
+```
+
+### Performance Benchmarks
+
+**Desktop (Target: 60fps):**
+```bash
+# With stats.js visible:
+# - FPS: 60 (stable)
+# - MS: 16-17ms per frame
+# - MB: <100MB memory
+```
+
+**Mobile (Target: 30+ fps):**
+```bash
+# Test on actual device or browser DevTools mobile emulation
+# - FPS: >30 (acceptable)
+# - No significant lag
+# - Touch controls work
+```
+
+### Deployment Verification
+```bash
+# After deploying to Cloudflare Pages:
+
+# 1. Check site loads
+curl -I https://your-site.pages.dev
+# Should return: HTTP/2 200
+
+# 2. Check assets load
+curl -I https://your-site.pages.dev/assets/index-[hash].js  
+# Should return: HTTP/2 200
+
+# 3. Check HTTPS
+# Visit site in browser - should show padlock icon
+
+# 4. Test all features work in production
+# Same as visual tests above
+```
+
+**ALL CHECKS MUST PASS FOR PRODUCTION READY** ✅
 
 ---
 
@@ -1093,4 +1546,36 @@ For questions about this project or Three.js development:
 **Estimated Time to Polished: 2-3 weeks**
 **Estimated Time to Future-Ready: 3-4 weeks**
 
-Good luck with your vibe coding! 🎉🧺
+---
+
+## Rapid Prototyping: One-Day MVP (Advanced)
+
+For experienced developers with Claude Code, you can achieve MVP in a single session:
+
+**Hour 1: Foundation (Phases 1-2)**
+```bash
+# Setup + single thread
+npm create vite@latest basket-weaving-sim -- --template vanilla
+cd basket-weaving-sim
+npm install three lil-gui stats.js
+# Claude Code: "Create basic Three.js scene with single sinusoidal thread"
+```
+
+**Hour 2: Three Threads (Phase 3)**
+```bash
+# Claude Code: "Add two more threads with 120° phase offsets"
+```
+
+**Hour 3: Interaction (Phases 4-5)**
+```bash
+# Claude Code: "Add lighting and lil-gui with 5 parameter sliders"
+```
+
+**Hour 4: Polish & Deploy (Phases 7, 10)**
+```bash
+# Claude Code: "Add responsive canvas, optimize, build, and prepare for deployment"
+git init && git add . && git commit -m "MVP"
+# Deploy to Cloudflare Pages
+```
+
+**Result:** Working interactive 3D basket weaving simulator in ~4 hours.
