@@ -111,7 +111,10 @@ export class PlainWeavePattern extends BasePattern {
 
     // Create tube geometry from points
     const geometry = this.createTubeFromPoints(points, weaverThickness, true);
-    const material = this.getMaterial(weaverMaterial);
+
+    // Get base material and clone it to avoid mutating shared material
+    const baseMaterial = this.getMaterial();
+    const material = baseMaterial.clone();
 
     // Alternate weaver colors slightly for visual interest
     if (rowIndex % 2 === 1) {
