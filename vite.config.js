@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-  base: './',  // Use relative paths for assets (critical for deployment)
+  base: '/baskets-3d/',  // GitHub Pages base path (repository name)
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
